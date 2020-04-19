@@ -22,7 +22,7 @@ This service talks to DB, elastic search cluster and payroll service which store
 
 #### Technologies used:
 
-Java8, PostgresDB, Rest High Level Elastic Search Client.
+Java8, PostgresDB, Rest High Level Elastic Search Client, Hystrix for circuit breaker.
 
 
 ### Postman collection
