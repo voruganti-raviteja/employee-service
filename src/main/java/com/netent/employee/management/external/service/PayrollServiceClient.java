@@ -1,8 +1,9 @@
 package com.netent.employee.management.external.service;
 
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -11,24 +12,24 @@ import org.springframework.web.client.RestTemplate;
 
 import com.netent.employee.management.vo.Employee;
 import com.netent.employee.management.vo.EmployeeCreatePayrollResponse;
-import com.netent.employee.management.vo.EmployeeDeletePayrollResopnse;
+import com.netent.employee.management.vo.EmployeeDeletePayrollResponse;
 import com.netent.employee.management.vo.EmployeeRetrievePayrollResponse;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 
 @Component
 public class PayrollServiceClient {
-	
+
 	private static Logger LOGGER = LoggerFactory.getLogger(PayrollServiceClient.class);
 
-	@Autowired
-	RestTemplate restTemplate;
+	@Resource
+	private RestTemplate restTemplate;
+	
 	@Value("${payroll.base.url}")
-	String payrollUrl;
+	private String payrollUrl;
 
-	@HystrixCommand(fallbackMethod = "createEmployeeFallBack", commandKey = "getAllPostsCommand",
-            commandProperties = {@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000")
-            })
+	@HystrixCommand(fallbackMethod = "createEmployeeFallBack", commandProperties = {
+			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000") })
 	public EmployeeCreatePayrollResponse createEmployee(Employee employee) {
 		final String uri = payrollUrl + "create";
 		EmployeeCreatePayrollResponse response = null;
@@ -40,15 +41,19 @@ public class PayrollServiceClient {
 		return response;
 	}
 
-	@HystrixCommand(fallbackMethod = "deleteEmployeeFallback", commandKey = "getAllPostsCommand",
-            commandProperties = {@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000")
-            })
-	public EmployeeDeletePayrollResopnse deleteEmployee(long id) {
+	public EmployeeCreatePayrollResponse createEmployeeFallBack(Employee employee, Throwable commandException) {
+		LOGGER.error("Error in creating employee from payroll service. {}", commandException.getMessage());
+		return null;
+	}
+
+	@HystrixCommand(fallbackMethod = "deleteEmployeeFallback", commandProperties = {
+			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000") })
+	public EmployeeDeletePayrollResponse deleteEmployee(long id) {
 		final String uri = payrollUrl + "delete/" + id;
-		EmployeeDeletePayrollResopnse response = null;
+		EmployeeDeletePayrollResponse response = null;
 		try {
-			ResponseEntity<EmployeeDeletePayrollResopnse> responseEntity = restTemplate.exchange(uri, HttpMethod.DELETE,
-					null, EmployeeDeletePayrollResopnse.class);
+			ResponseEntity<EmployeeDeletePayrollResponse> responseEntity = restTemplate.exchange(uri, HttpMethod.DELETE,
+					null, EmployeeDeletePayrollResponse.class);
 			if (responseEntity != null) {
 				response = responseEntity.getBody();
 			}
@@ -58,9 +63,13 @@ public class PayrollServiceClient {
 		return response;
 	}
 
-	@HystrixCommand(fallbackMethod = "getEmployeeFallback", commandKey = "getAllPostsCommand",
-            commandProperties = {@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000")
-            })
+	public EmployeeDeletePayrollResponse deleteEmployeeFallBack(long id, Throwable commandException) {
+		LOGGER.error("Error in deleting employee from payroll service. {}", commandException.getMessage());
+		return null;
+	}
+
+	@HystrixCommand(fallbackMethod = "getEmployeeFallback", commandProperties = {
+			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000") })
 	public EmployeeRetrievePayrollResponse getEmployee(long id) {
 		final String uri = payrollUrl + "employee/" + id;
 		EmployeeRetrievePayrollResponse response = null;
@@ -71,20 +80,10 @@ public class PayrollServiceClient {
 		}
 		return response;
 	}
-	
-	public EmployeeDeletePayrollResopnse deleteEmployeeFallBack(Throwable commandException) {
-        LOGGER.error("Error in deleting employee from payroll service. {}",commandException.getMessage());
-        return null;
-    }
-	
-	public EmployeeCreatePayrollResponse createEmployeeFallBack(Throwable commandException) {
-        LOGGER.error("Error in creating employee from payroll service. {}",commandException.getMessage());
-        return null;
-    }
-	
-	public EmployeeCreatePayrollResponse getEmployeeFallback(Throwable commandException) {
-        LOGGER.error("Error in fetching employee from payroll service. {}",commandException.getMessage());
-        return null;
-    }
+
+	public EmployeeRetrievePayrollResponse getEmployeeFallback(long id, Throwable commandException) {
+		LOGGER.error("Error in fetching employee from payroll service. {}", commandException.getMessage());
+		return null;
+	}
 
 }

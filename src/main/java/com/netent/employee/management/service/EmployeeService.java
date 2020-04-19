@@ -13,5 +13,7 @@ public interface EmployeeService {
 	public EmployeeSearchResponse searchEmployees(String searchKey, String searchValue);
 
 	public EmployeeBulkCreateResponse createEmployees(EmployeeBulkCreateRequest employeeBulkCreateRequest);
+	
+	public EmployeeSearchResponse searchEmployeesV2(String searchKey, String searchValue);
 
 }

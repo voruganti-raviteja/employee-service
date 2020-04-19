@@ -10,6 +10,7 @@ public interface ApplicationConstants {
 	String AGE_SEARCH_KEY = "age";
 	
 	String SEARCH_API = "/employee/search";
+	String SEARCH_API_V2 = "/employee/_search";
 	String CREATE_EMPLOYEE = "/employee";
 	String BULK_CREATE_EMPLOYEE = "/employees";
 	String SEARCH_KEY_PARAMETER = "search_key";

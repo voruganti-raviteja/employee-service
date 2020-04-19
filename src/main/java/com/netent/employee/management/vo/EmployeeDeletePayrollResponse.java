@@ -1,6 +1,6 @@
 package com.netent.employee.management.vo;
 
-public class EmployeeDeletePayrollResopnse {
+public class EmployeeDeletePayrollResponse {
 
 	private String status;
 	private String message;

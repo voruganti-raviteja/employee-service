@@ -54,4 +54,12 @@ public class EmployeeController {
 			@RequestParam(name = ApplicationConstants.SEARCH_VALUE_PARAMETER) String searchValue) {
 		return employeeService.searchEmployees(searchKey, searchValue);
 	}
+	
+	@GetMapping(value = ApplicationConstants.SEARCH_API_V2)
+	@ResponseStatus(value = HttpStatus.OK)
+	public EmployeeSearchResponse searchEmployeesV2(
+			@RequestParam(name = ApplicationConstants.SEARCH_KEY_PARAMETER) String searchKey,
+			@RequestParam(name = ApplicationConstants.SEARCH_VALUE_PARAMETER) String searchValue) {
+		return employeeService.searchEmployeesV2(searchKey, searchValue);
+	}
 }

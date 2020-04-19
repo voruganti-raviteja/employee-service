@@ -101,14 +101,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 		return employeeBulkCreateResponse;
 	}
 
+	@Override
+	public EmployeeSearchResponse searchEmployeesV2(String searchKey, String searchValue) {
+		EmployeeSearchResponse employeeSearchResponse = new EmployeeSearchResponse();
+		List<Employee> employees = elasticSearchClient.searchEmployees(searchKey, searchValue);
+		employeeSearchResponse.setEmployees(employees);
+		return employeeSearchResponse;
+	}
+	
 	private void setEmployeeName(EmployeeCreateRequest employeeCreateRequest) {
-		EmployeeSearchResponse employeeSearchResponse = searchEmployees(ApplicationConstants.NAME_SEARCH_KEY,
+		List<Employee> employees = elasticSearchClient.searchEmployees(ApplicationConstants.NAME_SEARCH_KEY,
 				employeeCreateRequest.getName());
-		if (employeeSearchResponse != null && !CollectionUtils.isEmpty(employeeSearchResponse.getEmployees())) {
-			int count = employeeSearchResponse.getEmployees().size();
+		if (!CollectionUtils.isEmpty(employees)) {
+			int count = employees.size();
 			String finalName = employeeCreateRequest.getName();
 			List<String> employeeNames = new ArrayList<String>();
-			for (Employee emp : employeeSearchResponse.getEmployees()) {
+			for (Employee emp : employees) {
 				if (emp.getName().startsWith(finalName)) {
 					employeeNames.add(emp.getName());
 				} else
